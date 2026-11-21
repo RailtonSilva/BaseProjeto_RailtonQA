@@ -19,7 +19,8 @@ def test_criar_pedido_com_desconto_e_frete():
     resp = client.post("/pedidos", json=payload)
 
    
-    assert resp.status_code == 201 corpo = resp.json()
+    assert resp.status_code == 201
+    corpo = resp.json()   
     assert corpo["item"] == "Camisa"
     assert corpo["valor_original"] == 150.0
     assert corpo["total_com_desconto"] == 135.0   
