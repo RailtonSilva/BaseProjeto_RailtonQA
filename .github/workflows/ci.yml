@@ -1,0 +1,51 @@
+name: CI
+
+# Quando a pipeline roda: a cada push e a cada pull request
+on:
+  push:
+  pull_request:
+
+jobs:
+  # JOB 1: testes unitários
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar o código
+        uses: actions/checkout@v4
+
+      - name: Instalar o Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instalar dependências
+        run: pip install -r requirements.txt
+
+      - name: Rodar testes unitários
+        run: pytest tests/unit -v
+
+  # JOB 2: testes de integração (só roda se o JOB 1 passar)
+  integration-tests:
+    runs-on: ubuntu-latest
+    needs: unit-tests
+    steps:
+      - name: Baixar o código
+        uses: actions/checkout@v4
+
+      - name: Instalar o Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instalar dependências
+        run: pip install -r requirements.txt
+
+      - name: Rodar testes de integração com cobertura
+        run: pytest tests/integration -v --cov=src --cov-report=html --cov-report=term-missing
+
+      - name: Salvar relatório de cobertura
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: relatorio-cobertura
+          path: htmlcov/
